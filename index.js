@@ -34,6 +34,10 @@ async function run() {
             const result = await trainerCollection.insertOne(trainerInfo);
             res.send(result);
         });
+        app.get('/beATrainer', async (req, res) => {
+            const result = await trainerCollection.find().toArray();
+            res.send(result);
+        });
 
 
         app.get('/testimonials', async (req, res) => {
