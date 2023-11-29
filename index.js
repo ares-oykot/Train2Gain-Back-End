@@ -26,6 +26,15 @@ async function run() {
         const blogCollection = client.db("Train2Gain").collection("blog");
         const subscribeCollection = client.db("Train2Gain").collection("subscribe");
         const galleryCollection = client.db("Train2Gain").collection("gallery");
+        const trainerCollection = client.db("Train2Gain").collection("trainer");
+
+
+        app.post('/beATrainer', async (req, res) => {
+            const trainerInfo = req.body;
+            const result = await trainerCollection.insertOne(trainerInfo);
+            res.send(result);
+        });
+
 
         app.get('/testimonials', async (req, res) => {
             const result = await testimonialsCollection.find().toArray();
