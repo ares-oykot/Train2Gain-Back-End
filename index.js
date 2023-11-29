@@ -79,12 +79,42 @@ async function run() {
             const result = await trainerCollection.find({role: "trainer"}).toArray();
             res.send(result);
         });
+        app.get('/appliedATrainer', async (req, res) => {
+            const result = await trainerCollection.find({role: "user"}).toArray();
+            res.send(result);
+        });
         app.get('/beATrainer/:id', async (req, res) => {
             const id = req.params.id;
             const query = {_id: new ObjectId(id)};
             const result = await trainerCollection.findOne(query)
             res.send(result);
         });
+
+        app.put('/makeTrainer/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = {email: email}
+            const options = { upsert: true };
+            const role = {
+                $set: {
+                    role: 'trainer'
+                }
+            }
+            const result = await trainerCollection.updateOne(filter, role, options);
+            const result1 = await usersCollection.updateOne(filter, role, options);
+            res.send(result1);
+        });
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         app.get('/testimonials', async (req, res) => {
@@ -115,6 +145,10 @@ async function run() {
         app.post('/subscribe', async (req, res) => {
             const subInfo = req.body;
             const result = await subscribeCollection.insertOne(subInfo);
+            res.send(result);
+        });
+        app.get('/AllSubscriber', async (req, res) => {
+            const result = await subscribeCollection.find().toArray();
             res.send(result);
         });
 
