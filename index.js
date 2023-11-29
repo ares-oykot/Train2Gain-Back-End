@@ -25,6 +25,7 @@ async function run() {
         const testimonialsCollection = client.db("Train2Gain").collection("testimonials");
         const blogCollection = client.db("Train2Gain").collection("blog");
         const subscribeCollection = client.db("Train2Gain").collection("subscribe");
+        const galleryCollection = client.db("Train2Gain").collection("gallery");
 
         app.get('/testimonials', async (req, res) => {
             const result = await testimonialsCollection.find().toArray();
@@ -57,6 +58,10 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/gallery', async (req, res) => {
+            const result = await galleryCollection.find().toArray();
+            res.send(result);
+        });
         
 
 
