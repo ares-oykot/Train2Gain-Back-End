@@ -22,6 +22,14 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         
+        const testimonialsCollection = client.db("Train2Gain").collection("testimonials");
+
+
+
+        app.get('/testimonials', async (req, res) => {
+            const result = await testimonialsCollection.find().toArray();
+            res.send(result);
+        });
 
 
         
