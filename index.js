@@ -40,6 +40,20 @@ async function run() {
             res.send(result);
         }); 
 
+        app.get('/users/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            // if (email !== req.decoded.email) {
+            //     return res.status(403).send({ message: 'forbidden access' })
+            // }
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            let admin = false;
+            if (user) {
+                admin = user?.role === 'admin';
+            };
+            res.send({ admin });
+        });
+
 
         app.post('/beATrainer', async (req, res) => {
             const trainerInfo = req.body;
