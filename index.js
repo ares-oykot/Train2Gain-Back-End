@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 
@@ -28,6 +28,7 @@ async function run() {
         const galleryCollection = client.db("Train2Gain").collection("gallery");
         const trainerCollection = client.db("Train2Gain").collection("trainer");
         const usersCollection = client.db("Train2Gain").collection("users");
+        const bookedTrainerCollection = client.db("Train2Gain").collection("bookedTrainer");
 
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -75,7 +76,13 @@ async function run() {
             res.send(result);
         });
         app.get('/beATrainer', async (req, res) => {
-            const result = await trainerCollection.find().toArray();
+            const result = await trainerCollection.find({role: "trainer"}).toArray();
+            res.send(result);
+        });
+        app.get('/beATrainer/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
+            const result = await trainerCollection.findOne(query)
             res.send(result);
         });
 
@@ -113,6 +120,12 @@ async function run() {
 
         app.get('/gallery', async (req, res) => {
             const result = await galleryCollection.find().toArray();
+            res.send(result);
+        });
+
+        app.post('/bookedTrainer', async (req, res) => {
+            const bookedInfo = req.body;
+            const result = await bookedTrainerCollection.insertOne(bookedInfo);
             res.send(result);
         });
         
