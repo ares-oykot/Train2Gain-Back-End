@@ -21,7 +21,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        
+
         const testimonialsCollection = client.db("Train2Gain").collection("testimonials");
         const blogCollection = client.db("Train2Gain").collection("blog");
         const subscribeCollection = client.db("Train2Gain").collection("subscribe");
@@ -39,7 +39,7 @@ async function run() {
             }
             const result = await usersCollection.insertOne(user);
             res.send(result);
-        }); 
+        });
 
         app.get('/users/admin/:email', async (req, res) => {
             const email = req.params.email;
@@ -54,6 +54,7 @@ async function run() {
             };
             res.send({ admin });
         });
+
         app.get('/users/trainer/:email', async (req, res) => {
             const email = req.params.email;
             // if (email !== req.decoded.email) {
@@ -61,7 +62,6 @@ async function run() {
             // }
             const query = { email: email };
             const user = await usersCollection.findOne(query);
-            console.log(user);
             let trainer = false;
             if (user) {
                 trainer = user?.role === 'trainer';
@@ -76,23 +76,23 @@ async function run() {
             res.send(result);
         });
         app.get('/beATrainer', async (req, res) => {
-            const result = await trainerCollection.find({role: "trainer"}).toArray();
+            const result = await trainerCollection.find({ role: "trainer" }).toArray();
             res.send(result);
         });
         app.get('/appliedATrainer', async (req, res) => {
-            const result = await trainerCollection.find({role: "user"}).toArray();
+            const result = await trainerCollection.find({ role: "user" }).toArray();
             res.send(result);
         });
         app.get('/beATrainer/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const result = await trainerCollection.findOne(query)
             res.send(result);
         });
 
         app.put('/makeTrainer/:email', async (req, res) => {
             const email = req.params.email;
-            const filter = {email: email}
+            const filter = { email: email }
             const options = { upsert: true };
             const role = {
                 $set: {
@@ -122,6 +122,11 @@ async function run() {
             res.send(result);
         });
 
+        app.post('/blog', async (req, res) => {
+            const blogInfo = req.body;
+            const result = await blogCollection.insertOne(blogInfo);
+            res.send(result);
+        });
 
         app.get('/latest-blog', async (req, res) => {
             try {
@@ -141,6 +146,24 @@ async function run() {
                 res.status(500).send('Internal Server Error');
             }
         });
+        app.get('/blog', async (req, res) => {
+            const result = await blogCollection.find().toArray();
+            res.send(result);
+        });
+        app.put('/likeBlog/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedLike = req.body;
+            const like = {
+                $set: {
+                    like: updatedLike.like
+                }
+            }
+            const result = await blogCollection.updateOne(filter, like, options);
+            res.send(result);
+        });
+
 
         app.post('/subscribe', async (req, res) => {
             const subInfo = req.body;
@@ -162,7 +185,13 @@ async function run() {
             const result = await bookedTrainerCollection.insertOne(bookedInfo);
             res.send(result);
         });
-        
+        app.get('/manageSlot/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { trainerEmail: email };
+            const result = await bookedTrainerCollection.find(query).toArray();
+            res.send(result);
+        });
+
 
 
 
