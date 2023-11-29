@@ -29,6 +29,18 @@ async function run() {
         const trainerCollection = client.db("Train2Gain").collection("trainer");
         const usersCollection = client.db("Train2Gain").collection("users");
 
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email };
+            const existingUser = await usersCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exist', insertedId: null })
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        }); 
+
+
         app.post('/beATrainer', async (req, res) => {
             const trainerInfo = req.body;
             const result = await trainerCollection.insertOne(trainerInfo);
