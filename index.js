@@ -27,7 +27,7 @@ async function run() {
         const subscribeCollection = client.db("Train2Gain").collection("subscribe");
         const galleryCollection = client.db("Train2Gain").collection("gallery");
         const trainerCollection = client.db("Train2Gain").collection("trainer");
-
+        const usersCollection = client.db("Train2Gain").collection("users");
 
         app.post('/beATrainer', async (req, res) => {
             const trainerInfo = req.body;
