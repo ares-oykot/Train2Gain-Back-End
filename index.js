@@ -24,7 +24,7 @@ async function run() {
         
         const testimonialsCollection = client.db("Train2Gain").collection("testimonials");
         const blogCollection = client.db("Train2Gain").collection("blog");
-
+        const subscribeCollection = client.db("Train2Gain").collection("subscribe");
 
         app.get('/testimonials', async (req, res) => {
             const result = await testimonialsCollection.find().toArray();
@@ -49,6 +49,12 @@ async function run() {
                 console.error(error);
                 res.status(500).send('Internal Server Error');
             }
+        });
+
+        app.post('/subscribe', async (req, res) => {
+            const subInfo = req.body;
+            const result = await subscribeCollection.insertOne(subInfo);
+            res.send(result);
         });
 
         
