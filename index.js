@@ -23,7 +23,7 @@ async function run() {
     try {
         
         const testimonialsCollection = client.db("Train2Gain").collection("testimonials");
-
+        const blogCollection = client.db("Train2Gain").collection("blog");
 
 
         app.get('/testimonials', async (req, res) => {
@@ -31,6 +31,25 @@ async function run() {
             res.send(result);
         });
 
+
+        app.get('/latest-blog', async (req, res) => {
+            try {
+                const latestBlog = await blogCollection
+                    .find()
+                    .sort({ uploadDate: -1 })
+                    .limit(1)
+                    .toArray();
+
+                if (latestBlog.length > 0) {
+                    res.send(latestBlog[0]);
+                } else {
+                    res.status(404).send('No blogs found');
+                }
+            } catch (error) {
+                console.error(error);
+                res.status(500).send('Internal Server Error');
+            }
+        });
 
         
 
