@@ -163,6 +163,19 @@ async function run() {
             const result = await blogCollection.updateOne(filter, like, options);
             res.send(result);
         });
+        app.put('/disLikeBlog/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedLike = req.body;
+            const like = {
+                $set: {
+                    unLike: updatedLike.unLike
+                }
+            }
+            const result = await blogCollection.updateOne(filter, like, options);
+            res.send(result);
+        });
 
 
         app.post('/subscribe', async (req, res) => {
