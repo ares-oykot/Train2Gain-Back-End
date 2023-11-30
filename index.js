@@ -29,6 +29,8 @@ async function run() {
         const trainerCollection = client.db("Train2Gain").collection("trainer");
         const usersCollection = client.db("Train2Gain").collection("users");
         const bookedTrainerCollection = client.db("Train2Gain").collection("bookedTrainer");
+        const scheduleCollection = client.db("Train2Gain").collection("shedule");
+        const classesCollection = client.db("Train2Gain").collection("classes");
 
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -202,6 +204,24 @@ async function run() {
             const email = req.params.email;
             const query = { trainerEmail: email };
             const result = await bookedTrainerCollection.find(query).toArray();
+            res.send(result);
+        });
+
+
+
+
+        app.get('/schedule', async (req, res) => {
+            const result = await scheduleCollection.find().toArray();
+            res.send(result);
+        });
+        
+        app.post('/addClasses', async (req, res) => {
+            const classInfo = req.body;
+            const result = await classesCollection.insertOne(classInfo);
+            res.send(result);
+        })
+        app.get('/classes', async (req, res) => {
+            const result = await classesCollection.find().toArray();
             res.send(result);
         });
 
