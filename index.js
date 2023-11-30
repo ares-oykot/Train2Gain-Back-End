@@ -107,7 +107,7 @@ async function run() {
             const result = await trainerCollection.insertOne(trainerInfo);
             res.send(result);
         });
-        app.get('/beATrainer', verifyToken, async (req, res) => {
+        app.get('/beATrainer', async (req, res) => {
             const result = await trainerCollection.find({ role: "trainer" }).toArray();
             res.send(result);
         });
