@@ -56,20 +56,16 @@ async function run() {
             });
         };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            const isAdmin = user?.role === 'admin';
+            if (!isAdmin) {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
+            next();
+        };
 
 
         app.post('/users', async (req, res) => {
@@ -83,11 +79,8 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/users/admin/:email', async (req, res) => {
+        app.get('/users/admin/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
-            // if (email !== req.decoded.email) {
-            //     return res.status(403).send({ message: 'forbidden access' })
-            // }
             const query = { email: email };
             const user = await usersCollection.findOne(query);
             let admin = false;
@@ -97,11 +90,8 @@ async function run() {
             res.send({ admin });
         });
 
-        app.get('/users/trainer/:email', async (req, res) => {
+        app.get('/users/trainer/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
-            // if (email !== req.decoded.email) {
-            //     return res.status(403).send({ message: 'forbidden access' })
-            // }
             const query = { email: email };
             const user = await usersCollection.findOne(query);
             let trainer = false;
@@ -121,7 +111,7 @@ async function run() {
             const result = await trainerCollection.find({ role: "trainer" }).toArray();
             res.send(result);
         });
-        app.get('/appliedATrainer', verifyToken, async (req, res) => {
+        app.get('/appliedATrainer', verifyToken, verifyAdmin, async (req, res) => {
             const result = await trainerCollection.find({ role: "user" }).toArray();
             res.send(result);
         });
@@ -132,7 +122,7 @@ async function run() {
             res.send(result);
         });
 
-        app.put('/makeTrainer/:email', verifyToken, async (req, res) => {
+        app.put('/makeTrainer/:email', verifyToken, verifyAdmin, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email }
             const options = { upsert: true };
@@ -145,19 +135,6 @@ async function run() {
             const result1 = await usersCollection.updateOne(filter, role, options);
             res.send(result1);
         });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         app.get('/testimonials', async (req, res) => {
             const result = await testimonialsCollection.find().toArray();
@@ -225,7 +202,7 @@ async function run() {
             const result = await subscribeCollection.insertOne(subInfo);
             res.send(result);
         });
-        app.get('/AllSubscriber', verifyToken, async (req, res) => {
+        app.get('/AllSubscriber', verifyToken, verifyAdmin, async (req, res) => {
             const result = await subscribeCollection.find().toArray();
             res.send(result);
         });
@@ -247,9 +224,6 @@ async function run() {
             res.send(result);
         });
 
-
-
-
         app.get('/schedule', async (req, res) => {
             const result = await scheduleCollection.find().toArray();
             res.send(result);
@@ -264,12 +238,6 @@ async function run() {
             const result = await classesCollection.find().toArray();
             res.send(result);
         });
-
-
-
-
-
-
 
     } finally {
     }
