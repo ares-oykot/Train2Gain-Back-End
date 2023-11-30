@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
@@ -31,6 +32,45 @@ async function run() {
         const bookedTrainerCollection = client.db("Train2Gain").collection("bookedTrainer");
         const scheduleCollection = client.db("Train2Gain").collection("shedule");
         const classesCollection = client.db("Train2Gain").collection("classes");
+
+
+        // jwt related apis 
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+            res.send({ token });
+        });
+        // middlewares
+        const verifyToken = (req, res, next) => {
+            // console.log("inside verifyToken", req.headers.authorization);
+            if (!req.headers.authorization) {
+                return res.status(401).send({ message: 'unAuthorize access' })
+            }
+            const token = req.headers.authorization.split(' ')[1];
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+                if (err) {
+                    return res.status(401).send({ message: 'unAuthorize access' })
+                }
+                req.decoded = decoded;
+                next();
+            });
+        };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -72,27 +112,27 @@ async function run() {
         });
 
 
-        app.post('/beATrainer', async (req, res) => {
+        app.post('/beATrainer', verifyToken, async (req, res) => {
             const trainerInfo = req.body;
             const result = await trainerCollection.insertOne(trainerInfo);
             res.send(result);
         });
-        app.get('/beATrainer', async (req, res) => {
+        app.get('/beATrainer', verifyToken, async (req, res) => {
             const result = await trainerCollection.find({ role: "trainer" }).toArray();
             res.send(result);
         });
-        app.get('/appliedATrainer', async (req, res) => {
+        app.get('/appliedATrainer', verifyToken, async (req, res) => {
             const result = await trainerCollection.find({ role: "user" }).toArray();
             res.send(result);
         });
-        app.get('/beATrainer/:id', async (req, res) => {
+        app.get('/beATrainer/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await trainerCollection.findOne(query)
             res.send(result);
         });
 
-        app.put('/makeTrainer/:email', async (req, res) => {
+        app.put('/makeTrainer/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email }
             const options = { upsert: true };
@@ -185,7 +225,7 @@ async function run() {
             const result = await subscribeCollection.insertOne(subInfo);
             res.send(result);
         });
-        app.get('/AllSubscriber', async (req, res) => {
+        app.get('/AllSubscriber', verifyToken, async (req, res) => {
             const result = await subscribeCollection.find().toArray();
             res.send(result);
         });
@@ -195,12 +235,12 @@ async function run() {
             res.send(result);
         });
 
-        app.post('/bookedTrainer', async (req, res) => {
+        app.post('/bookedTrainer', verifyToken, async (req, res) => {
             const bookedInfo = req.body;
             const result = await bookedTrainerCollection.insertOne(bookedInfo);
             res.send(result);
         });
-        app.get('/manageSlot/:email', async (req, res) => {
+        app.get('/manageSlot/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const query = { trainerEmail: email };
             const result = await bookedTrainerCollection.find(query).toArray();
@@ -215,7 +255,7 @@ async function run() {
             res.send(result);
         });
         
-        app.post('/addClasses', async (req, res) => {
+        app.post('/addClasses', verifyToken, async (req, res) => {
             const classInfo = req.body;
             const result = await classesCollection.insertOne(classInfo);
             res.send(result);
